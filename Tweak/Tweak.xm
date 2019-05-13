@@ -32,10 +32,13 @@
 %hook SFBLEScanner
 -(id)modelWithProductID:(unsigned short)arg1 {
 	// Set PID once again
-	if (arg1 == 2807) arg1 = 8194;
-	// Set the model name just incase
-	NSString *model = @"Airpods1,1";
-	return model;
+	if (arg1 == 2807) {
+		arg1 = 8194;
+		// set model just incase
+		NSString *model = @"Airpods1,1";
+		return model;
+	}
+	else return %orig;
 }
 %end
 
@@ -254,8 +257,8 @@
 
 	// Get our prefs data
 	HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
-	// Get the path of selected custom anim, defaults to the original
-	NSString *customAnimPath = [([prefs objectForKey:@"customAnimPath"] ?: @"/Library/AirPortAnims/Default/") stringValue];
+	// Get the path of selected custom anim, defaults to the original anim
+	NSString *customAnimPath = [([prefs objectForKey:@"customAnimPath"] ?: @"file:///Library/AirPortAnims/Default/") stringValue];
 	// Change the path to our new path
 	MSHookIvar<NSString *>(self, "_movieStatusLoopName") = [customAnimPath stringByAppendingString:@"/ProxCard_loop.mov"];
 	// Change the asset to our new movie asset

@@ -1,6 +1,6 @@
 include $(THEOS)/makefiles/common.mk
 
-ARCHS = arm64
+ARCHS = arm64 arm64e
 TARGET = iphone:clang:11.0
 
 TWEAK_NAME = AirPort
