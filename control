@@ -1,0 +1,9 @@
+Package: com.boo.airport
+Name: AirPort
+Depends: firmware (>= 11.0), mobilesubstrate, preferenceloader, ws.hbang.common (>= 1.11)
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Backwards compatibility for 2nd gen Airpods & more!
+Maintainer: Boo
+Author: Boo
+Section: Tweaks

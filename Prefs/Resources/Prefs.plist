@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+	
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>headerCellClass</key>
+			<string>HBImageTableCell</string>
+			<key>icon</key>
+			<string>AirportHeader.png</string>
+		</dict>
+
+		<dict>
+			<key>cellClass</key>
+			<string>HBTwitterCell</string>
+			<key>label</key>
+			<string>Boo</string>
+			<key>user</key>
+			<string>BooDev</string>
+		</dict>
+		
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.boo.airport</string>
+			<key>label</key>
+			<string>ENABLED</string>
+			<key>key</key>
+			<string>Enabled</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>SETTINGS</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.boo.airport</string>
+			<key>label</key>
+			<string>AIRPOD2_SUPPORT</string>
+			<key>key</key>
+			<string>airpod2Support</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.boo.airport</string>
+			<key>label</key>
+			<string>USE_CUSTOM_ANIMATION</string>
+			<key>key</key>
+			<string>useCustomAnim</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>default</key>
+			<string>Default</string>
+			<key>defaults</key>
+			<string>com.boo.airport</string>
+			<key>label</key>
+			<string>CUSTOM_ANIM</string>
+			<key>key</key>
+			<string>customAnim</string>
+			<key>detail</key>
+			<string>ARPThemeListController</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>AirPort by Boo</string>
+			<key>isStaticText</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>respring:</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>RESPRING</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>resetPrefs:</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>RESTORE_DEFAULTS</string>
+		</dict>
+		<dict>
+			<key>cellClass</key>
+			<string>HBLinkTableCell</string>
+			<key>label</key>
+			<string>GitHub</string>
+			<key>subtitle</key>
+			<string>SOURCE_CODE</string>
+			<key>url</key>
+			<string>https://github.com/Boo-Dev/AirPort</string>
+		</dict>
+		<dict>
+			<key>cellClass</key>
+			<string>HBLinkTableCell</string>
+			<key>label</key>
+			<string>DONATE_TITLE</string>
+			<key>subtitle</key>
+			<string>DONATE_SUBTITLE</string>
+			<key>url</key>
+			<string>https://boodev.me/donate</string>
+		</dict>
+
+	</array>
+	<key>title</key>
+	<string>AirPort</string>
+</dict>
+</plist>

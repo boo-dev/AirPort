@@ -1,0 +1,10 @@
+{
+    entry = {
+	bundle = AirPortPrefs;
+	cell = PSLinkCell;
+	detail = ARPPrefsListController;
+	isController = 1;
+	label = AirPort;
+	icon = Icon.png;
+    };
+}

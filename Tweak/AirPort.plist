@@ -1,0 +1,1 @@
+{ Filter = { Bundles = ( "com.apple.sharingd", "com.apple.SharingViewService", "com.apple.springboard", "com.apple.BatteryCenter" ); }; }

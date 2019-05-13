@@ -1,0 +1,15 @@
+{
+  "ENABLED" = "Enabled";
+  "APPLY" = "Apply";
+  
+  "SETTINGS" = "Settings";
+  "AIRPOD2_SUPPORT" = "AirPod 2 Support";
+  "USE_CUSTOM_ANIMATION" = "Use Custom Animation";
+  "CUSTOM_ANIM" = "Custom Animation";
+
+  "RESPRING" = "Respring";
+  "RESTORE_DEFAULTS" = "Reset Settings Back To Default";
+  "SOURCE_CODE" = "Source Code";
+  "DONATE_TITLE" = "Donate To Boo";
+  "DONATE_SUBTITLE" = "Buy me a coffee? 😊";
+}
