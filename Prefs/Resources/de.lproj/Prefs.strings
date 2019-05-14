@@ -1,15 +1,15 @@
 {
-  "ENABLED" = "Enabled";
-  "APPLY" = "Apply";
+  "ENABLED" = "Aktiviert";
+  "APPLY" = "Anwenden";
   
-  "SETTINGS" = "Settings";
-  "AIRPOD2_SUPPORT" = "AirPod 2 Support";
-  "USE_CUSTOM_ANIMATION" = "Use Custom Animation";
-  "CUSTOM_ANIM" = "Custom Animation";
+  "SETTINGS" = "Einstellungen";
+  "AIRPOD2_SUPPORT" = "AirPod 2 Unterstützung";
+  "USE_CUSTOM_ANIMATION" = "Benutze benutzerdefinierte Animation";
+  "CUSTOM_ANIM" = "Benutzerdefinierte Animation";
 
   "RESPRING" = "Respring";
-  "RESTORE_DEFAULTS" = "Reset Settings Back To Default";
-  "SOURCE_CODE" = "Source Code";
-  "DONATE_TITLE" = "Donate To Boo";
-  "DONATE_SUBTITLE" = "Buy me a coffee? 😊";
+  "RESTORE_DEFAULTS" = "Einstellungen wiederherstellen";
+  "SOURCE_CODE" = "Quellcode";
+  "DONATE_TITLE" = "Spende zu Boo";
+  "DONATE_SUBTITLE" = "Kauf mir einen Kaffee? 😊";
 }
