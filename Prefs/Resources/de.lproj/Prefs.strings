@@ -1,0 +1,15 @@
+{
+  "ENABLED" = "Aktiviert";
+  "APPLY" = "Anwenden";
+  
+  "SETTINGS" = "Einstellungen";
+  "AIRPOD2_SUPPORT" = "AirPod 2 Unterstützung";
+  "USE_CUSTOM_ANIMATION" = "Benutze benutzerdefinierte Animation";
+  "CUSTOM_ANIM" = "Benutzerdefinierte Animation";
+
+  "RESPRING" = "Respring";
+  "RESTORE_DEFAULTS" = "Einstellungen wiederherstellen";
+  "SOURCE_CODE" = "Quellcode";
+  "DONATE_TITLE" = "Spende zu Boo";
+  "DONATE_SUBTITLE" = "Kauf mir einen Kaffee? 😊";
+}
