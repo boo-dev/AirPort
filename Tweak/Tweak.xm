@@ -1,5 +1,22 @@
 #include "Tweak.h"
 
+__attribute__((unused)) static void AirPortLog(NSString* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    NSString* str = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+
+    NSString* logPath = @"/var/tmp/AirPortLog.log";
+    NSFileManager* mngr = [NSFileManager defaultManager];
+    if (![mngr fileExistsAtPath:logPath])
+        [mngr createFileAtPath:logPath contents:[NSData new] attributes:nil];
+
+    NSString* contents = [NSString stringWithContentsOfFile:logPath encoding:NSUTF8StringEncoding error:nil];
+    contents = [contents stringByAppendingString:[NSString stringWithFormat:@"\n%@", str]];
+    [contents writeToFile:logPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+}
+
 %group AirPortSupport
 
 %hook BCBatteryDevice
@@ -17,7 +34,6 @@
 }
 -(id)initWithIdentifier:(id)arg1 vendor:(long long)arg2 productIdentifier:(long long)arg3 parts:(unsigned long long)arg4 matchIdentifier:(id)arg5 {
 	%orig;
-
 	// Change PID everywhere we can (even though it's not 100% neccessary)
 	if (arg3 == 8207) arg3 = 8194;
 
@@ -288,8 +304,37 @@
 
 %end
 
+%group AirPortPiracyWarning
+
+%hook SpringBoard
+
+-(void)applicationDidFinishLaunching:(id)arg1 {
+    %orig;
+	if (!dpkgInvalid) return;
+    UIAlertController *alertController = [UIAlertController
+        alertControllerWithTitle:@"Uh-Oh!"
+        message:@"This version of AirPort has been downloaded from an untrusted source.\nPlease download AirPort from:\nhttps://repo.packix.com/"
+        preferredStyle:UIAlertControllerStyleAlert
+    ];
+
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [((UIApplication*)self).keyWindow.rootViewController dismissViewControllerAnimated:YES completion:NULL];
+    }]];
+
+    [((UIApplication*)self).keyWindow.rootViewController presentViewController:alertController animated:YES completion:NULL];
+}
+
+%end
+%end
 
 %ctor {
+    dpkgInvalid = ![[NSFileManager defaultManager] fileExistsAtPath:@"/var/lib/dpkg/info/com.boo.airport.list"];
+
+    if (dpkgInvalid) {
+        %init(AirPortPiracyWarning);
+        return;
+    }
+
 	HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
   	enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
   	if (enabled) {

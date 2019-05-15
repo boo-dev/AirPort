@@ -2,6 +2,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 bool enabled;
+bool dpkgInvalid;
 bool airpod2Support;
 bool customAnim;
 bool postPair;
