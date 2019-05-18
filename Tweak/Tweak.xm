@@ -1,24 +1,6 @@
 #include "Tweak.h"
 
-__attribute__((unused)) static void AirPortLog(NSString* format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    NSString* str = [[NSString alloc] initWithFormat:format arguments:args];
-    va_end(args);
-
-    NSString* logPath = @"/var/tmp/AirPortLog.log";
-    NSFileManager* mngr = [NSFileManager defaultManager];
-    if (![mngr fileExistsAtPath:logPath])
-        [mngr createFileAtPath:logPath contents:[NSData new] attributes:nil];
-
-    NSString* contents = [NSString stringWithContentsOfFile:logPath encoding:NSUTF8StringEncoding error:nil];
-    contents = [contents stringByAppendingString:[NSString stringWithFormat:@"\n%@", str]];
-    [contents writeToFile:logPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-}
-
 %group AirPortSupport
-
 %hook BCBatteryDevice
 + (id)batteryDeviceWithIdentifier:(id)arg1 vendor:(long long)arg2 productIdentifier:(long long)arg3 parts:(unsigned long long)arg4 matchIdentifier:(id)arg5 {
 	%orig;
@@ -48,13 +30,8 @@ __attribute__((unused)) static void AirPortLog(NSString* format, ...)
 %hook SFBLEScanner
 -(id)modelWithProductID:(unsigned short)arg1 {
 	// Set PID once again
-	if (arg1 == 2807) {
-		arg1 = 8194;
-		// set model just incase
-		NSString *model = @"Airpods1,1";
-		return model;
-	}
-	else return %orig;
+	if (arg1 == 8207) arg1 = 8194;
+	return %orig;
 }
 %end
 
@@ -62,6 +39,7 @@ __attribute__((unused)) static void AirPortLog(NSString* format, ...)
 - (unsigned int)productID2 {
 	// get the pid
 	unsigned int pid = %orig;
+
 	// if it's 2nd gen airpod - set it to 1st gen's pid
 	if (pid == 8207) pid = 8194;
 
@@ -81,7 +59,6 @@ __attribute__((unused)) static void AirPortLog(NSString* format, ...)
 		// set the original advert field data as ours
 		self.advertisementFields = newAdvertFields;
 	}
-
 	return self;
 }
 // doing the same thing here as above, just want to make sure the fields get modified
@@ -187,13 +164,12 @@ __attribute__((unused)) static void AirPortLog(NSString* format, ...)
 	/* This isn't actually working properly yet, this method originally gets the battery levels via SFBatteryInfo 
 	(but 2nd gen airpods don't advertise their battery levels properly to SFBatteryInfo)
 	I'll have to go back and see if I can just change all the battery data in SFBatteryInfo so it's a much more streamlined process*/
-
-	if (postPair) {
+	NSMutableDictionary *newUserInfo = [self.userInfo mutableCopy];
+	long long pid = [[newUserInfo objectForKey:@"pid"] longLongValue];
+	if (pid == 8194) {
 		// Get a copy of the user info
-		NSMutableDictionary *newUserInfo = [self.userInfo mutableCopy];
-		long long pid = [[newUserInfo objectForKey:@"pid"] longLongValue];
 		// make sure pid is airpods1,1
-		if (pid == 8194) {
+		if (postPair) {
 			// get the proper battery values
 			[self getBatteryValues];
 			// set the proper value for each battery
@@ -214,7 +190,6 @@ __attribute__((unused)) static void AirPortLog(NSString* format, ...)
 	}
 }
 - (void)_transitionToStatusFadeInSplit {
-	%orig;
 	// are the airpods/case charging? we have to manually hide/unhide the charging image as of now
 	// actually the case needs improvements - so we're just going to hide the charge icon for now
 	if (self.caseCharging) MSHookIvar<UIImageView*>(self, "_caseBatteryChargeImageView").hidden = YES;
@@ -225,6 +200,7 @@ __attribute__((unused)) static void AirPortLog(NSString* format, ...)
 
 	// Only update the battery value once the device is paired
 	postPair = YES;
+	%orig;
 }
 %new
 -(void)getBatteryValues {
@@ -304,6 +280,7 @@ __attribute__((unused)) static void AirPortLog(NSString* format, ...)
 
 %end
 
+// ty @nepetadev for the ez piracy detection
 %group AirPortPiracyWarning
 
 %hook SpringBoard
@@ -328,19 +305,18 @@ __attribute__((unused)) static void AirPortLog(NSString* format, ...)
 %end
 
 %ctor {
-    dpkgInvalid = ![[NSFileManager defaultManager] fileExistsAtPath:@"/var/lib/dpkg/info/com.boo.airport.list"];
-
-    if (dpkgInvalid) {
-        %init(AirPortPiracyWarning);
-        return;
-    }
+	// ty @nepetadev
+	dpkgInvalid = ![[NSFileManager defaultManager] fileExistsAtPath:@"/var/lib/dpkg/info/com.boo.airport.list"];
+	if (dpkgInvalid) %init(AirPortPiracyWarning);
 
 	HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
-  	enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
-  	if (enabled) {
-		airpod2Support = [([prefs objectForKey:@"airpod2Support"] ?: @(YES)) boolValue];
-		customAnim = [([prefs objectForKey:@"useCustomAnim"] ?: @(YES)) boolValue];
-		if (airpod2Support) %init(AirPortSupport);
+  	bool enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
+	// Preferences aren't being loaded in sharingd for some reason - breaking prefs for now /shrug
+	%init(AirPortSupport);
+
+	// Can still use prefs for springboard stuff
+	if (enabled) {
+		bool customAnim = [([prefs objectForKey:@"useCustomAnim"] ?: @(NO)) boolValue];
 
 		if (customAnim) {
 			%init(AirPortCustomAnim);

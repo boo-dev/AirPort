@@ -1,10 +1,7 @@
 #import <Cephei/HBPreferences.h>
 #import <AVFoundation/AVFoundation.h>
 
-bool enabled;
 bool dpkgInvalid;
-bool airpod2Support;
-bool customAnim;
 bool postPair;
 
 @interface UIImage (Private)
@@ -13,6 +10,11 @@ bool postPair;
 @end
 
 @interface SFDevice : NSObject
+@end
+
+@interface SFBLEScanner : NSObject {
+	NSMutableDictionary* _devices;
+}
 @end
 
 @interface SFBLEDevice : NSObject
