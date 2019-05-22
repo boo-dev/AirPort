@@ -1,23 +1,17 @@
 #include "Tweak.h"
 
 %group AirPortAnimFix
-
 %hook SFDeviceAssetTask
 -(id)bundleAtURL:(id)arg1 error:(id*)arg2 {
+	NSString *originalBundlePath = [arg1 lastPathComponent];
 	// intercept the bundle url and replace it with our own that actually contains all the proper files
-	NSURL *originalPath = [[NSURL alloc] initWithString:@"file:///System/Library/PreinstalledAssetsV2/RequiredByOs/com_apple_MobileAsset_SharingDeviceAssets/da2fdb2b7ce20cc8d610bd595f86d9f7ea4e649e.asset/AssetData/AirPods1_1-CL_0.devicebundle" relativeToURL:nil];
-	if ([arg1 isEqual:originalPath]) {
+	if ([originalBundlePath isEqual:@"AirPods1_1-CL_0.devicebundle"]) {
 		// only replace it with our bundle if it's for Airpods1,1
 		arg1 = [[NSURL alloc] initWithString:@"file:///Library/Application%20Support/AirPort/AirPods1_1-CL_0.devicebundle" relativeToURL:nil];
 	}
-	return %orig;
-}
--(id)bundleURLFromAssetURL:(id)arg1 {
-	// intercept the bundle url and replace it with our own that actually contains all the proper files
-	NSURL *originalPath = [[NSURL alloc] initWithString:@"file:///System/Library/PreinstalledAssetsV2/RequiredByOs/com_apple_MobileAsset_SharingDeviceAssets/da2fdb2b7ce20cc8d610bd595f86d9f7ea4e649e.asset/AssetData/" relativeToURL:nil];
-	if ([arg1 isEqual:originalPath]) {
-		// only replace it with our bundle if it's for Airpods1,1
-		arg1 = [[NSURL alloc] initWithString:@"file:///Library/Application%20Support/AirPort/" relativeToURL:nil];
+	if ([originalBundlePath isEqual:@"AirPods1_2-CL_0.devicebundle"]) {
+		// only replace it with our bundle if it's for Airpods1,2 (Wireless case)
+		arg1 = [[NSURL alloc] initWithString:@"file:///Library/Application%20Support/AirPort/AirPods1_2-CL_0.devicebundle" relativeToURL:nil];
 	}
 	return %orig;
 }
@@ -334,7 +328,6 @@
 	if (dpkgInvalid) %init(AirPortPiracyWarning);
 	bool enabled;
 	bool airpod2Support;
-	bool useAnimFix;
 
     NSString *processName = [NSProcessInfo processInfo].processName;
 	// we have to check the process because for some reason sharingd does not play nicely with Cephei
@@ -343,19 +336,18 @@
 		NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.boo.airport.plist"];
   		enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
 		airpod2Support = [([prefs objectForKey:@"airpod2Support"] ?: @(YES)) boolValue];
-		useAnimFix = [([prefs objectForKey:@"useAnimFix"] ?: @(YES)) boolValue];
 	} else {
 		HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
   		enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
 		airpod2Support = [([prefs objectForKey:@"airpod2Support"] ?: @(YES)) boolValue];
-		useAnimFix = [([prefs objectForKey:@"useAnimFix"] ?: @(YES)) boolValue];
 		if (enabled) {
 			bool customAnim = [([prefs objectForKey:@"useCustomAnim"] ?: @(NO)) boolValue];
+			bool useAnimFix = [([prefs objectForKey:@"useAnimFix"] ?: @(YES)) boolValue];
 			if (customAnim) %init(AirPortCustomAnim);
+			if (useAnimFix) %init(AirPortAnimFix);
 		}
 	}
 	if (enabled) {
 		if (airpod2Support) %init(AirPortSupport);
-		if (useAnimFix) %init(AirPortAnimFix);
 	}
 }

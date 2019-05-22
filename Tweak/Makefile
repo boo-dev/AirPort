@@ -1,7 +1,7 @@
 include $(THEOS)/makefiles/common.mk
 
 ARCHS = arm64 arm64e
-TARGET = iphone:clang:latest:11.2
+TARGET = iphone:clang:latest
 
 TWEAK_NAME = AirPort
 AirPort_FILES = Tweak.xm
