@@ -16,13 +16,11 @@ include $(THEOS_MAKE_PATH)/bundle.mk
 internal-stage::
 	$(ECHO_NOTHING)mkdir -p \
 	$(THEOS_STAGING_DIR)/Library/PreferenceLoader/Preferences \
-	$(THEOS_STAGING_DIR)/Library/AirPortAnims \
-	$(THEOS_STAGING_DIR)/System/Library/PreinstalledAssetsV2/RequiredByOs/com_apple_MobileAsset_SharingDeviceAssets/da2fdb2b7ce20cc8d610bd595f86d9f7ea4e649e.asset/AssetData/AirPods1_1-CL_0.devicebundle$(ECHO_END)
+	$(THEOS_STAGING_DIR)/Library/AirPortAnims$(ECHO_END)
 
 	$(ECHO_NOTHING)cp entry.plist $(THEOS_STAGING_DIR)/Library/PreferenceLoader/Preferences/AirPortPrefs.plist$(ECHO_END)
 	
 	$(ECHO_NOTHING)cp -rn Resources/Default $(THEOS_STAGING_DIR)/Library/AirPortAnims/$(ECHO_END)
-	$(ECHO_NOTHING)cp -rn Resources/Default/ $(THEOS_STAGING_DIR)/System/Library/PreinstalledAssetsV2/RequiredByOs/com_apple_MobileAsset_SharingDeviceAssets/da2fdb2b7ce20cc8d610bd595f86d9f7ea4e649e.asset/AssetData/AirPods1_1-CL_0.devicebundle/$(ECHO_END)
 	$(ECHO_NOTHING)cp -rn "Resources/Black Airpods" $(THEOS_STAGING_DIR)/Library/AirPortAnims/$(ECHO_END)
 	$(ECHO_NOTHING)cp -rn "Resources/Wireless Case" $(THEOS_STAGING_DIR)/Library/AirPortAnims/$(ECHO_END)
 	$(ECHO_NOTHING)cp -rn Resources/JuulPods $(THEOS_STAGING_DIR)/Library/AirPortAnims/$(ECHO_END)

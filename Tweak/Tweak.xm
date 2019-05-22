@@ -1,5 +1,29 @@
 #include "Tweak.h"
 
+%group AirPortAnimFix
+
+%hook SFDeviceAssetTask
+-(id)bundleAtURL:(id)arg1 error:(id*)arg2 {
+	// intercept the bundle url and replace it with our own that actually contains all the proper files
+	NSURL *originalPath = [[NSURL alloc] initWithString:@"file:///System/Library/PreinstalledAssetsV2/RequiredByOs/com_apple_MobileAsset_SharingDeviceAssets/da2fdb2b7ce20cc8d610bd595f86d9f7ea4e649e.asset/AssetData/AirPods1_1-CL_0.devicebundle" relativeToURL:nil];
+	if ([arg1 isEqual:originalPath]) {
+		// only replace it with our bundle if it's for Airpods1,1
+		arg1 = [[NSURL alloc] initWithString:@"file:///Library/Application%20Support/AirPort/AirPods1_1-CL_0.devicebundle" relativeToURL:nil];
+	}
+	return %orig;
+}
+-(id)bundleURLFromAssetURL:(id)arg1 {
+	// intercept the bundle url and replace it with our own that actually contains all the proper files
+	NSURL *originalPath = [[NSURL alloc] initWithString:@"file:///System/Library/PreinstalledAssetsV2/RequiredByOs/com_apple_MobileAsset_SharingDeviceAssets/da2fdb2b7ce20cc8d610bd595f86d9f7ea4e649e.asset/AssetData/" relativeToURL:nil];
+	if ([arg1 isEqual:originalPath]) {
+		// only replace it with our bundle if it's for Airpods1,1
+		arg1 = [[NSURL alloc] initWithString:@"file:///Library/Application%20Support/AirPort/" relativeToURL:nil];
+	}
+	return %orig;
+}
+%end
+%end
+
 %group AirPortSupport
 %hook BCBatteryDevice
 + (id)batteryDeviceWithIdentifier:(id)arg1 vendor:(long long)arg2 productIdentifier:(long long)arg3 parts:(unsigned long long)arg4 matchIdentifier:(id)arg5 {
@@ -308,18 +332,30 @@
 	// ty @nepetadev
 	dpkgInvalid = ![[NSFileManager defaultManager] fileExistsAtPath:@"/var/lib/dpkg/info/com.boo.airport.list"];
 	if (dpkgInvalid) %init(AirPortPiracyWarning);
+	bool enabled;
+	bool airpod2Support;
+	bool useAnimFix;
 
-	HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
-  	bool enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
-	// Preferences aren't being loaded in sharingd for some reason - breaking prefs for now /shrug
-	%init(AirPortSupport);
-
-	// Can still use prefs for springboard stuff
-	if (enabled) {
-		bool customAnim = [([prefs objectForKey:@"useCustomAnim"] ?: @(NO)) boolValue];
-
-		if (customAnim) {
-			%init(AirPortCustomAnim);
+    NSString *processName = [NSProcessInfo processInfo].processName;
+	// we have to check the process because for some reason sharingd does not play nicely with Cephei
+	if ([processName isEqualToString:@"sharingd"]) {
+		// as stated above, we have to 'manually' load the data into a dictionary
+		NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.boo.airport.plist"];
+  		enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
+		airpod2Support = [([prefs objectForKey:@"airpod2Support"] ?: @(YES)) boolValue];
+		useAnimFix = [([prefs objectForKey:@"useAnimFix"] ?: @(YES)) boolValue];
+	} else {
+		HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
+  		enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
+		airpod2Support = [([prefs objectForKey:@"airpod2Support"] ?: @(YES)) boolValue];
+		useAnimFix = [([prefs objectForKey:@"useAnimFix"] ?: @(YES)) boolValue];
+		if (enabled) {
+			bool customAnim = [([prefs objectForKey:@"useCustomAnim"] ?: @(NO)) boolValue];
+			if (customAnim) %init(AirPortCustomAnim);
 		}
+	}
+	if (enabled) {
+		if (airpod2Support) %init(AirPortSupport);
+		if (useAnimFix) %init(AirPortAnimFix);
 	}
 }

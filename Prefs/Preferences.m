@@ -46,7 +46,7 @@
 - (void)respring:(id)sender {
     NSTask *task = [[NSTask alloc] init];
     [task setLaunchPath:@"/usr/bin/killall"];
-    [task setArguments:[NSArray arrayWithObjects:@"sharingd", @"SharingViewService", @"backboardd", nil]];
+    [task setArguments:[NSArray arrayWithObjects:@"SpringBoard", @"SharingViewService", @"sharingd", nil]];
     [task launch];
 }
 - (void)resetPrefs:(id)sender {

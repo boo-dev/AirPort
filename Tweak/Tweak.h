@@ -9,6 +9,10 @@ bool postPair;
 @property CGFloat scale;
 @end
 
+@interface NSURL (Private)
+- (BOOL) isEqualToURL:(NSURL*)otherURL;
+@end
+
 @interface SFDevice : NSObject
 @end
 
