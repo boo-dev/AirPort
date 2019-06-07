@@ -6,6 +6,7 @@
   "AIRPOD2_SUPPORT" = "AirPod 2 Support";
   "BLANK_ANIMATION_FIX" = "Fix Blank Animations";
   "USE_CUSTOM_ANIMATION" = "Use Custom Animation";
+  "USE_DARK_MODE" = "Dark Mode";
   "CUSTOM_ANIM" = "Custom Animation";
 
   "RESPRING" = "Respring";

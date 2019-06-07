@@ -1,4 +1,5 @@
 #include "Tweak.h"
+// PowerBeatsPro PID is 8203 - adding in actual support after battery issues are fixed
 
 %group AirPortAnimFix
 %hook SFDeviceAssetTask
@@ -44,6 +45,47 @@
 	else return %orig;
 }
 %end
+/*
+%hook SFPowerSource
+-(void)updateWithPowerSource:(id)arg1 {
+	%orig;
+	////NSLog(@"UpdatePowerSource: %@", arg1);
+}
+-(void)encodeWithCoder:(id)arg1 {
+	////NSLog(@"Encode: %@", arg1);
+	return %orig;
+}
+-(unsigned)updateWithPowerSourceDescription:(id)arg1 {
+	////NSLog(@"UpdatePSDescription: %@", arg1);
+	return %orig;
+}
+-(id)init {
+	//SFPowerSource *test = %orig;
+	////NSLog(@"Init: %@, Part ID: %@", test, test.partID);
+	return %orig;
+}
+%end
+*/
+%hook SFPowerSourceMonitor
+-(long long)productID {
+	long long pid = %orig;
+	if (pid == 8207) pid = 8194;
+	return pid;
+}
+
+-(void)_updatePowerSource:(id)arg1 desc:(id)arg2 adapterDesc:(id)arg3 {
+	SFPowerSource *powerSource = arg1;
+	if (![powerSource.partID isEqualToString:@"Single"]) %orig;
+}/*
+-(void)_foundPowerSource:(id)arg1 desc:(id)arg2 adapterDesc:(id)arg3 {
+	%orig;
+	////NSLog(@"Found PowerSource: %@, Description: %@, Adapter: %@", arg1, arg2, arg3);
+}
+-(id)powerSourcesFoundHandler {
+	//NSLog(@"FoundHandler: %@", %orig);
+	return %orig;
+}*/
+%end
 
 %hook SFBLEScanner
 -(id)modelWithProductID:(unsigned short)arg1 {
@@ -67,6 +109,7 @@
 	self = %orig;
 	// get the original advert fields
 	NSDictionary *advertFields = self.advertisementFields;
+
 	// check if device pid is airpods 2 (and 1)
 	if ([[advertFields objectForKey:@"pid"] longLongValue] == 8207 || [[advertFields objectForKey:@"pid"] longLongValue] == 8194) {
 		// make a mutable copy of the data so we can modify it
@@ -261,14 +304,25 @@
 %hook ProximityStatusViewController
 - (void)viewWillAppear:(_Bool)arg1 {
 	%orig;
-	/*if (useDarkUI) {
-		self.view.backgroundColor = [UIColor blackColor];
-	}*/
 
 	// Get our prefs data
 	HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
 	// Get the path of selected custom anim, defaults to the original anim
 	NSString *customAnimPath = [([prefs objectForKey:@"customAnimPath"] ?: @"file:///Library/AirPortAnims/Default/") stringValue];
+	// Initial darkmode support
+	bool useDarkMode = [([prefs objectForKey:@"useDarkMode"] ?: @(NO)) boolValue];
+	if (useDarkMode) {
+		// set the path to our custom anim
+		customAnimPath = @"file:///Library/Application%20Support/AirPort/DarkMode/";
+		// loop through all the subviews to make sure everything is black
+		for (UIView *subview in self.view.subviews) {
+			subview.backgroundColor = [UIColor blackColor];
+			for (UIView *sub in subview.subviews) {
+				sub.backgroundColor = [UIColor blackColor];
+			}
+		}
+	}
+
 	// Change the path to our new path
 	MSHookIvar<NSString *>(self, "_movieStatusLoopName") = [customAnimPath stringByAppendingString:@"/ProxCard_loop.mov"];
 	// Change the asset to our new movie asset
@@ -277,7 +331,6 @@
 	MSHookIvar<AVPlayerItem *>(self, "_avItemLoop") = [[AVPlayerItem alloc] initWithAsset:asset];
 }
 %end
-
 //This isn't working fully yet, we'll fix it later, pairing view is a bitch compared to the status view
 /*
 %hook ProximityPairingViewController
@@ -343,7 +396,8 @@
 		if (enabled) {
 			bool customAnim = [([prefs objectForKey:@"useCustomAnim"] ?: @(NO)) boolValue];
 			bool useAnimFix = [([prefs objectForKey:@"useAnimFix"] ?: @(YES)) boolValue];
-			if (customAnim) %init(AirPortCustomAnim);
+			bool useDarkMode = [([prefs objectForKey:@"useDarkMode"] ?: @(NO)) boolValue];
+			if (customAnim || useDarkMode) %init(AirPortCustomAnim);
 			if (useAnimFix) %init(AirPortAnimFix);
 		}
 	}

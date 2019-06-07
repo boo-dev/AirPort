@@ -21,7 +21,4 @@ internal-stage::
 	$(ECHO_NOTHING)cp entry.plist $(THEOS_STAGING_DIR)/Library/PreferenceLoader/Preferences/AirPortPrefs.plist$(ECHO_END)
 	
 	$(ECHO_NOTHING)cp -rn Resources/Default $(THEOS_STAGING_DIR)/Library/AirPortAnims/$(ECHO_END)
-	$(ECHO_NOTHING)cp -rn Resources/GlitchPods $(THEOS_STAGING_DIR)/Library/AirPortAnims/$(ECHO_END)
-	$(ECHO_NOTHING)cp -rn "Resources/Black Airpods" $(THEOS_STAGING_DIR)/Library/AirPortAnims/$(ECHO_END)
 	$(ECHO_NOTHING)cp -rn "Resources/Wireless Case" $(THEOS_STAGING_DIR)/Library/AirPortAnims/$(ECHO_END)
-	$(ECHO_NOTHING)cp -rn Resources/JuulPods $(THEOS_STAGING_DIR)/Library/AirPortAnims/$(ECHO_END)

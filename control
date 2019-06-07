@@ -2,7 +2,7 @@ Package: com.boo.airport
 Name: AirPort
 Depends: firmware (>= 11.0), mobilesubstrate, preferenceloader, ws.hbang.common (>= 1.11)
 Conflicts: com.yourepo.exfoliate.glitchpods
-Version: 1.0.5
+Version: 1.0.6
 Architecture: iphoneos-arm
 Description: Backwards compatibility for 2nd gen Airpods & more!
 Maintainer: Boo

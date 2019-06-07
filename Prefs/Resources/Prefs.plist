@@ -74,6 +74,18 @@
 			<key>defaults</key>
 			<string>com.boo.airport</string>
 			<key>label</key>
+			<string>USE_DARK_MODE</string>
+			<key>key</key>
+			<string>useDarkMode</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.boo.airport</string>
+			<key>label</key>
 			<string>USE_CUSTOM_ANIMATION</string>
 			<key>key</key>
 			<string>useCustomAnim</string>
