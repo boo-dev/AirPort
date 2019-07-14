@@ -46,7 +46,7 @@
 - (void)respring:(id)sender {
     NSTask *task = [[NSTask alloc] init];
     [task setLaunchPath:@"/usr/bin/killall"];
-    [task setArguments:[NSArray arrayWithObjects:@"sharingd", @"SharingViewService", @"backboardd", nil]];
+    [task setArguments:[NSArray arrayWithObjects:@"SpringBoard", @"SharingViewService", @"sharingd", nil]];
     [task launch];
 }
 - (void)resetPrefs:(id)sender {
@@ -56,7 +56,7 @@
     [self respring:sender];
 }
 - (void)setAnimName:(NSString *)name {
-    UITableViewCell *cell = [self.table cellForRowAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:1]];
+    UITableViewCell *cell = [self.table cellForRowAtIndexPath:[NSIndexPath indexPathForRow:4 inSection:1]];
 
 	cell.detailTextLabel.text = name;
 }

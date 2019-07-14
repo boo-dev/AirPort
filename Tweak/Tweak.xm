@@ -1,7 +1,25 @@
 #include "Tweak.h"
+// PowerBeatsPro PID is 8203 - adding in actual support after battery issues are fixed
+
+%group AirPortAnimFix
+%hook SFDeviceAssetTask
+-(id)bundleAtURL:(id)arg1 error:(id*)arg2 {
+	NSString *originalBundlePath = [arg1 lastPathComponent];
+	// intercept the bundle url and replace it with our own that actually contains all the proper files
+	if ([originalBundlePath isEqual:@"AirPods1_1-CL_0.devicebundle"]) {
+		// only replace it with our bundle if it's for Airpods1,1
+		arg1 = [[NSURL alloc] initWithString:@"file:///Library/Application%20Support/AirPort/AirPods1_1-CL_0.devicebundle" relativeToURL:nil];
+	}
+	if ([originalBundlePath isEqual:@"AirPods1_2-CL_0.devicebundle"]) {
+		// only replace it with our bundle if it's for Airpods1,2 (Wireless case)
+		arg1 = [[NSURL alloc] initWithString:@"file:///Library/Application%20Support/AirPort/AirPods1_2-CL_0.devicebundle" relativeToURL:nil];
+	}
+	return %orig;
+}
+%end
+%end
 
 %group AirPortSupport
-
 %hook BCBatteryDevice
 + (id)batteryDeviceWithIdentifier:(id)arg1 vendor:(long long)arg2 productIdentifier:(long long)arg3 parts:(unsigned long long)arg4 matchIdentifier:(id)arg5 {
 	%orig;
@@ -17,7 +35,6 @@
 }
 -(id)initWithIdentifier:(id)arg1 vendor:(long long)arg2 productIdentifier:(long long)arg3 parts:(unsigned long long)arg4 matchIdentifier:(id)arg5 {
 	%orig;
-
 	// Change PID everywhere we can (even though it's not 100% neccessary)
 	if (arg3 == 8207) arg3 = 8194;
 
@@ -28,17 +45,53 @@
 	else return %orig;
 }
 %end
+/*
+%hook SFPowerSource
+-(void)updateWithPowerSource:(id)arg1 {
+	%orig;
+	////NSLog(@"UpdatePowerSource: %@", arg1);
+}
+-(void)encodeWithCoder:(id)arg1 {
+	////NSLog(@"Encode: %@", arg1);
+	return %orig;
+}
+-(unsigned)updateWithPowerSourceDescription:(id)arg1 {
+	////NSLog(@"UpdatePSDescription: %@", arg1);
+	return %orig;
+}
+-(id)init {
+	//SFPowerSource *test = %orig;
+	////NSLog(@"Init: %@, Part ID: %@", test, test.partID);
+	return %orig;
+}
+%end
+*/
+%hook SFPowerSourceMonitor
+-(long long)productID {
+	long long pid = %orig;
+	if (pid == 8207) pid = 8194;
+	return pid;
+}
+
+-(void)_updatePowerSource:(id)arg1 desc:(id)arg2 adapterDesc:(id)arg3 {
+	SFPowerSource *powerSource = arg1;
+	if (![powerSource.partID isEqualToString:@"Single"]) %orig;
+}/*
+-(void)_foundPowerSource:(id)arg1 desc:(id)arg2 adapterDesc:(id)arg3 {
+	%orig;
+	////NSLog(@"Found PowerSource: %@, Description: %@, Adapter: %@", arg1, arg2, arg3);
+}
+-(id)powerSourcesFoundHandler {
+	//NSLog(@"FoundHandler: %@", %orig);
+	return %orig;
+}*/
+%end
 
 %hook SFBLEScanner
 -(id)modelWithProductID:(unsigned short)arg1 {
 	// Set PID once again
-	if (arg1 == 2807) {
-		arg1 = 8194;
-		// set model just incase
-		NSString *model = @"Airpods1,1";
-		return model;
-	}
-	else return %orig;
+	if (arg1 == 8207) arg1 = 8194;
+	return %orig;
 }
 %end
 
@@ -46,6 +99,7 @@
 - (unsigned int)productID2 {
 	// get the pid
 	unsigned int pid = %orig;
+
 	// if it's 2nd gen airpod - set it to 1st gen's pid
 	if (pid == 8207) pid = 8194;
 
@@ -55,6 +109,7 @@
 	self = %orig;
 	// get the original advert fields
 	NSDictionary *advertFields = self.advertisementFields;
+
 	// check if device pid is airpods 2 (and 1)
 	if ([[advertFields objectForKey:@"pid"] longLongValue] == 8207 || [[advertFields objectForKey:@"pid"] longLongValue] == 8194) {
 		// make a mutable copy of the data so we can modify it
@@ -65,7 +120,6 @@
 		// set the original advert field data as ours
 		self.advertisementFields = newAdvertFields;
 	}
-
 	return self;
 }
 // doing the same thing here as above, just want to make sure the fields get modified
@@ -171,13 +225,12 @@
 	/* This isn't actually working properly yet, this method originally gets the battery levels via SFBatteryInfo 
 	(but 2nd gen airpods don't advertise their battery levels properly to SFBatteryInfo)
 	I'll have to go back and see if I can just change all the battery data in SFBatteryInfo so it's a much more streamlined process*/
-
-	if (postPair) {
+	NSMutableDictionary *newUserInfo = [self.userInfo mutableCopy];
+	long long pid = [[newUserInfo objectForKey:@"pid"] longLongValue];
+	if (pid == 8194) {
 		// Get a copy of the user info
-		NSMutableDictionary *newUserInfo = [self.userInfo mutableCopy];
-		long long pid = [[newUserInfo objectForKey:@"pid"] longLongValue];
 		// make sure pid is airpods1,1
-		if (pid == 8194) {
+		if (postPair) {
 			// get the proper battery values
 			[self getBatteryValues];
 			// set the proper value for each battery
@@ -198,7 +251,6 @@
 	}
 }
 - (void)_transitionToStatusFadeInSplit {
-	%orig;
 	// are the airpods/case charging? we have to manually hide/unhide the charging image as of now
 	// actually the case needs improvements - so we're just going to hide the charge icon for now
 	if (self.caseCharging) MSHookIvar<UIImageView*>(self, "_caseBatteryChargeImageView").hidden = YES;
@@ -209,6 +261,7 @@
 
 	// Only update the battery value once the device is paired
 	postPair = YES;
+	%orig;
 }
 %new
 -(void)getBatteryValues {
@@ -251,14 +304,25 @@
 %hook ProximityStatusViewController
 - (void)viewWillAppear:(_Bool)arg1 {
 	%orig;
-	/*if (useDarkUI) {
-		self.view.backgroundColor = [UIColor blackColor];
-	}*/
 
 	// Get our prefs data
 	HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
 	// Get the path of selected custom anim, defaults to the original anim
 	NSString *customAnimPath = [([prefs objectForKey:@"customAnimPath"] ?: @"file:///Library/AirPortAnims/Default/") stringValue];
+	// Initial darkmode support
+	bool useDarkMode = [([prefs objectForKey:@"useDarkMode"] ?: @(NO)) boolValue];
+	if (useDarkMode) {
+		// set the path to our custom anim
+		customAnimPath = @"file:///Library/Application%20Support/AirPort/DarkMode/";
+		// loop through all the subviews to make sure everything is black
+		for (UIView *subview in self.view.subviews) {
+			subview.backgroundColor = [UIColor blackColor];
+			for (UIView *sub in subview.subviews) {
+				sub.backgroundColor = [UIColor blackColor];
+			}
+		}
+	}
+
 	// Change the path to our new path
 	MSHookIvar<NSString *>(self, "_movieStatusLoopName") = [customAnimPath stringByAppendingString:@"/ProxCard_loop.mov"];
 	// Change the asset to our new movie asset
@@ -267,7 +331,6 @@
 	MSHookIvar<AVPlayerItem *>(self, "_avItemLoop") = [[AVPlayerItem alloc] initWithAsset:asset];
 }
 %end
-
 //This isn't working fully yet, we'll fix it later, pairing view is a bitch compared to the status view
 /*
 %hook ProximityPairingViewController
@@ -288,17 +351,57 @@
 
 %end
 
+// ty @nepetadev for the ez piracy detection
+%group AirPortPiracyWarning
+
+%hook SpringBoard
+
+-(void)applicationDidFinishLaunching:(id)arg1 {
+    %orig;
+	if (!dpkgInvalid) return;
+    UIAlertController *alertController = [UIAlertController
+        alertControllerWithTitle:@"Uh-Oh!"
+        message:@"This version of AirPort has been downloaded from an untrusted source.\nPlease download AirPort from:\nhttps://repo.packix.com/"
+        preferredStyle:UIAlertControllerStyleAlert
+    ];
+
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [((UIApplication*)self).keyWindow.rootViewController dismissViewControllerAnimated:YES completion:NULL];
+    }]];
+
+    [((UIApplication*)self).keyWindow.rootViewController presentViewController:alertController animated:YES completion:NULL];
+}
+
+%end
+%end
 
 %ctor {
-	HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
-  	enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
-  	if (enabled) {
-		airpod2Support = [([prefs objectForKey:@"airpod2Support"] ?: @(YES)) boolValue];
-		customAnim = [([prefs objectForKey:@"useCustomAnim"] ?: @(YES)) boolValue];
-		if (airpod2Support) %init(AirPortSupport);
+	// ty @nepetadev
+	dpkgInvalid = ![[NSFileManager defaultManager] fileExistsAtPath:@"/var/lib/dpkg/info/com.boo.airport.list"];
+	if (dpkgInvalid) %init(AirPortPiracyWarning);
+	bool enabled;
+	bool airpod2Support;
 
-		if (customAnim) {
-			%init(AirPortCustomAnim);
+    NSString *processName = [NSProcessInfo processInfo].processName;
+	// we have to check the process because for some reason sharingd does not play nicely with Cephei
+	if ([processName isEqualToString:@"sharingd"]) {
+		// as stated above, we have to 'manually' load the data into a dictionary
+		NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.boo.airport.plist"];
+  		enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
+		airpod2Support = [([prefs objectForKey:@"airpod2Support"] ?: @(YES)) boolValue];
+	} else {
+		HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
+  		enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
+		airpod2Support = [([prefs objectForKey:@"airpod2Support"] ?: @(YES)) boolValue];
+		if (enabled) {
+			bool customAnim = [([prefs objectForKey:@"useCustomAnim"] ?: @(NO)) boolValue];
+			bool useAnimFix = [([prefs objectForKey:@"useAnimFix"] ?: @(YES)) boolValue];
+			bool useDarkMode = [([prefs objectForKey:@"useDarkMode"] ?: @(NO)) boolValue];
+			if (customAnim || useDarkMode) %init(AirPortCustomAnim);
+			if (useAnimFix) %init(AirPortAnimFix);
 		}
+	}
+	if (enabled) {
+		if (airpod2Support) %init(AirPortSupport);
 	}
 }
