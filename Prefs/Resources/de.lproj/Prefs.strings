@@ -4,7 +4,9 @@
   
   "SETTINGS" = "Einstellungen";
   "AIRPOD2_SUPPORT" = "AirPod 2 Unterstützung";
+  "BLANK_ANIMATION_FIX" = "Leere Animationen beheben";
   "USE_CUSTOM_ANIMATION" = "Benutze benutzerdefinierte Animation";
+  "USE_DARK_MODE" = "Dunkelmodus";
   "CUSTOM_ANIM" = "Benutzerdefinierte Animation";
 
   "RESPRING" = "Respring";
