@@ -45,27 +45,23 @@
 	else return %orig;
 }
 %end
-/*
+
 %hook SFPowerSource
 -(void)updateWithPowerSource:(id)arg1 {
 	%orig;
-	////NSLog(@"UpdatePowerSource: %@", arg1);
-}
--(void)encodeWithCoder:(id)arg1 {
-	////NSLog(@"Encode: %@", arg1);
-	return %orig;
+	//NSLog(@"UpdatePowerSource: %@", arg1);
 }
 -(unsigned)updateWithPowerSourceDescription:(id)arg1 {
-	////NSLog(@"UpdatePSDescription: %@", arg1);
+	//NSLog(@"UpdatePSDescription: %@", arg1);
 	return %orig;
 }
 -(id)init {
 	//SFPowerSource *test = %orig;
-	////NSLog(@"Init: %@, Part ID: %@", test, test.partID);
+	//NSLog(@"Init: %@, Part ID: %@", test, test.partID);
 	return %orig;
 }
 %end
-*/
+
 %hook SFPowerSourceMonitor
 -(long long)productID {
 	long long pid = %orig;
@@ -76,15 +72,15 @@
 -(void)_updatePowerSource:(id)arg1 desc:(id)arg2 adapterDesc:(id)arg3 {
 	SFPowerSource *powerSource = arg1;
 	if (![powerSource.partID isEqualToString:@"Single"]) %orig;
-}/*
+}
 -(void)_foundPowerSource:(id)arg1 desc:(id)arg2 adapterDesc:(id)arg3 {
 	%orig;
-	////NSLog(@"Found PowerSource: %@, Description: %@, Adapter: %@", arg1, arg2, arg3);
+	//NSLog(@"Found PowerSource: %@, Description: %@, Adapter: %@", arg1, arg2, arg3);
 }
 -(id)powerSourcesFoundHandler {
 	//NSLog(@"FoundHandler: %@", %orig);
 	return %orig;
-}*/
+}
 %end
 
 %hook SFBLEScanner
@@ -177,6 +173,7 @@
 	BCBatteryDeviceController *bcb = [%c(BCBatteryDeviceController) sharedInstance];
 	// Cycle through the connected devices
 	for (BCBatteryDevice *device in bcb.connectedDevices) {
+		long long percentCharge = bcb.percentCharge;
 		// check to see if pid is airpods1,1
 		if (device.productIdentifier == 8194) {
 			// Part 0 is the default for any bluetooth device, so we ignore it
@@ -300,7 +297,39 @@
 %end
 %end
 
-%group AirPortCustomAnim
+%group AirPortCustomAnim11
+%hook ProximityStatusViewController
+-(void)viewWillAppear:(id)arg1 {
+	%orig;
+	// Get our prefs data
+	HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
+	// Get the path of selected custom anim, defaults to the original anim
+	NSString *customAnimPath = [([prefs objectForKey:@"customAnimPath"] ?: @"file:///Library/AirPortAnims/Default/") stringValue];
+	// Initial darkmode support
+	bool useDarkMode = [([prefs objectForKey:@"useDarkMode"] ?: @(NO)) boolValue];
+	if (useDarkMode) {
+		// set the path to our custom anim
+		//customAnimPath = @"file:///Library/Application%20Support/AirPort/DarkMode/";
+		// loop through all the subviews to make sure everything is black
+		for (UIView *subview in self.view.subviews) {
+			subview.backgroundColor = [UIColor blackColor];
+			for (UIView *sub in subview.subviews) {
+				sub.backgroundColor = [UIColor blackColor];
+			}
+		}
+	}
+
+	// Change the path to our new path
+	MSHookIvar<NSString *>(self, "_movieStatusLoopName") = [customAnimPath stringByAppendingString:@"/ProxCard_loop.mov"];
+	// Change the asset to our new movie asset
+	AVAsset *asset = [AVAsset assetWithURL:[NSURL URLWithString:MSHookIvar<NSString *>(self, "_movieStatusLoopName")]];
+	// Done!
+	MSHookIvar<AVPlayerItem *>(self, "_avItemLoop") = [[AVPlayerItem alloc] initWithAsset:asset];
+}
+%end
+%end
+
+%group AirPortCustomAnim12
 %hook ProximityStatusViewController
 - (void)viewWillAppear:(_Bool)arg1 {
 	%orig;
@@ -313,7 +342,7 @@
 	bool useDarkMode = [([prefs objectForKey:@"useDarkMode"] ?: @(NO)) boolValue];
 	if (useDarkMode) {
 		// set the path to our custom anim
-		customAnimPath = @"file:///Library/Application%20Support/AirPort/DarkMode/";
+		//customAnimPath = @"file:///Library/Application%20Support/AirPort/DarkMode/";
 		// loop through all the subviews to make sure everything is black
 		for (UIView *subview in self.view.subviews) {
 			subview.backgroundColor = [UIColor blackColor];
@@ -397,7 +426,13 @@
 			bool customAnim = [([prefs objectForKey:@"useCustomAnim"] ?: @(NO)) boolValue];
 			bool useAnimFix = [([prefs objectForKey:@"useAnimFix"] ?: @(YES)) boolValue];
 			bool useDarkMode = [([prefs objectForKey:@"useDarkMode"] ?: @(NO)) boolValue];
-			if (customAnim || useDarkMode) %init(AirPortCustomAnim);
+			if (customAnim || useDarkMode) {
+				NSLog(@"System Version is %@",[[UIDevice currentDevice] systemVersion]);
+				NSString *ver = [[UIDevice currentDevice] systemVersion];
+				float ver_float = [ver floatValue];
+				if ( ver_float > 12.0 ) %init(AirPortCustomAnim12);
+				else if ( ver_float > 11.0 ) %init(AirPortCustomAnim11);
+			}
 			if (useAnimFix) %init(AirPortAnimFix);
 		}
 	}
