@@ -3,11 +3,13 @@
   "APPLY" = "Apply";
   
   "SETTINGS" = "Settings";
-  "AIRPOD2_SUPPORT" = "AirPod 2 Support";
+  "2ND_GEN_SUPPORT" = "2nd Gen Compatibility";
   "BLANK_ANIMATION_FIX" = "Fix Blank Animations";
   "USE_CUSTOM_ANIMATION" = "Use Custom Animation";
   "USE_DARK_MODE" = "Dark Mode";
+  "DARK_MODE_SUBSTRING" = "Dark mode will disable custom animations, if you want to use custom animations, please disable dark mode.";
   "CUSTOM_ANIM" = "Custom Animation";
+  "LEGACY" = "Legacy";
 
   "RESPRING" = "Respring";
   "RESTORE_DEFAULTS" = "Reset Settings Back To Default";

@@ -46,42 +46,6 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
-			<true/>
-			<key>defaults</key>
-			<string>com.boo.airport</string>
-			<key>label</key>
-			<string>AIRPOD2_SUPPORT</string>
-			<key>key</key>
-			<string>airpod2Support</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>default</key>
-			<true/>
-			<key>defaults</key>
-			<string>com.boo.airport</string>
-			<key>label</key>
-			<string>BLANK_ANIMATION_FIX</string>
-			<key>key</key>
-			<string>useAnimFix</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>default</key>
-			<false/>
-			<key>defaults</key>
-			<string>com.boo.airport</string>
-			<key>label</key>
-			<string>USE_DARK_MODE</string>
-			<key>key</key>
-			<string>useDarkMode</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>default</key>
 			<false/>
 			<key>defaults</key>
 			<string>com.boo.airport</string>
@@ -103,6 +67,58 @@
 			<string>customAnim</string>
 			<key>detail</key>
 			<string>ARPThemeListController</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>DARK_MODE_SUBSTRING</string>
+			<key>isStaticText</key>
+			<true/>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.boo.airport</string>
+			<key>label</key>
+			<string>USE_DARK_MODE</string>
+			<key>key</key>
+			<string>useDarkMode</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>LEGACY</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.boo.airport</string>
+			<key>label</key>
+			<string>2ND_GEN_SUPPORT</string>
+			<key>key</key>
+			<string>airpod2Support</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.boo.airport</string>
+			<key>label</key>
+			<string>BLANK_ANIMATION_FIX</string>
+			<key>key</key>
+			<string>useAnimFix</string>
 		</dict>
 
 		<dict>

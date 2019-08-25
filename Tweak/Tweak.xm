@@ -173,7 +173,8 @@
 	BCBatteryDeviceController *bcb = [%c(BCBatteryDeviceController) sharedInstance];
 	// Cycle through the connected devices
 	for (BCBatteryDevice *device in bcb.connectedDevices) {
-		long long percentCharge = bcb.percentCharge;
+		long long percentCharge = device.percentCharge;
+		NSLog(@"%llu", percentCharge);
 		// check to see if pid is airpods1,1
 		if (device.productIdentifier == 8194) {
 			// Part 0 is the default for any bluetooth device, so we ignore it
@@ -309,7 +310,7 @@
 	bool useDarkMode = [([prefs objectForKey:@"useDarkMode"] ?: @(NO)) boolValue];
 	if (useDarkMode) {
 		// set the path to our custom anim
-		//customAnimPath = @"file:///Library/Application%20Support/AirPort/DarkMode/";
+		customAnimPath = @"file:///Library/Application%20Support/AirPort/DarkMode/";
 		// loop through all the subviews to make sure everything is black
 		for (UIView *subview in self.view.subviews) {
 			subview.backgroundColor = [UIColor blackColor];
@@ -331,7 +332,7 @@
 
 %group AirPortCustomAnim12
 %hook ProximityStatusViewController
-- (void)viewWillAppear:(_Bool)arg1 {
+- (void)viewWillAppear:(_Bool)arg1 {	
 	%orig;
 
 	// Get our prefs data
@@ -342,7 +343,7 @@
 	bool useDarkMode = [([prefs objectForKey:@"useDarkMode"] ?: @(NO)) boolValue];
 	if (useDarkMode) {
 		// set the path to our custom anim
-		//customAnimPath = @"file:///Library/Application%20Support/AirPort/DarkMode/";
+		customAnimPath = @"file:///Library/Application%20Support/AirPort/DarkMode/";
 		// loop through all the subviews to make sure everything is black
 		for (UIView *subview in self.view.subviews) {
 			subview.backgroundColor = [UIColor blackColor];
@@ -410,16 +411,19 @@
 	if (dpkgInvalid) %init(AirPortPiracyWarning);
 	bool enabled;
 	bool airpod2Support;
+	NSString *ver = [[UIDevice currentDevice] systemVersion];
+	float ver_float = [ver floatValue];
 
     NSString *processName = [NSProcessInfo processInfo].processName;
 	// we have to check the process because for some reason sharingd does not play nicely with Cephei
-	if ([processName isEqualToString:@"sharingd"]) {
+	if ([processName isEqualToString:@"sharingd"] && ver_float < 12.2) {
 		// as stated above, we have to 'manually' load the data into a dictionary
 		NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.boo.airport.plist"];
   		enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
 		airpod2Support = [([prefs objectForKey:@"airpod2Support"] ?: @(YES)) boolValue];
 	} else {
-		HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"com.boo.airport"];
+		HBPreferences *prefs = [[HBPreferences 
+		alloc] initWithIdentifier:@"com.boo.airport"];
   		enabled = [([prefs objectForKey:@"Enabled"] ?: @(YES)) boolValue];
 		airpod2Support = [([prefs objectForKey:@"airpod2Support"] ?: @(YES)) boolValue];
 		if (enabled) {
@@ -427,9 +431,6 @@
 			bool useAnimFix = [([prefs objectForKey:@"useAnimFix"] ?: @(YES)) boolValue];
 			bool useDarkMode = [([prefs objectForKey:@"useDarkMode"] ?: @(NO)) boolValue];
 			if (customAnim || useDarkMode) {
-				NSLog(@"System Version is %@",[[UIDevice currentDevice] systemVersion]);
-				NSString *ver = [[UIDevice currentDevice] systemVersion];
-				float ver_float = [ver floatValue];
 				if ( ver_float > 12.0 ) %init(AirPortCustomAnim12);
 				else if ( ver_float > 11.0 ) %init(AirPortCustomAnim11);
 			}
