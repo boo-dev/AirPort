@@ -3,9 +3,13 @@
   "APPLY" = "Anwenden";
   
   "SETTINGS" = "Einstellungen";
-  "AIRPOD2_SUPPORT" = "AirPod 2 Unterstützung";
-  "USE_CUSTOM_ANIMATION" = "Benutze benutzerdefinierte Animation";
+  "2ND_GEN_SUPPORT" = "2. Generation Unterstützung";
+  "BLANK_ANIMATION_FIX" = "Leere Animationen beheben";
+  "USE_CUSTOM_ANIMATION" = "Benutzerdefinierte Animation verwenden";
+  "USE_DARK_MODE" = "Dunkelmodus";
+  "DARK_MODE_SUBSTRING" = "Der Dunkelmodus wird benutzerdefinierte Animationen deaktivieren, wenn du benutzerdefinierte Animationen verwenden willst, deaktiviere den Dunkelmodus.";
   "CUSTOM_ANIM" = "Benutzerdefinierte Animation";
+  "LEGACY" = "Legacy";
 
   "RESPRING" = "Respring";
   "RESTORE_DEFAULTS" = "Einstellungen wiederherstellen";
